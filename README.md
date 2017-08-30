@@ -6,19 +6,18 @@
 （1）基本实现能够获取指定直播间弹幕<br>
 
 （2）应用的库有：re、sys、time、json、socket、struct、random、threading、http.client、urllib.request、lxml<br>
-    re:正则表达式用于匹配网页<br>
-    sys:emoji表情不能正常解析，需要sys支持<br>
-    time:添加时间<br>
-    lxml:Xpath匹配网页<br>
-    json:解析json数据<br>
-    socket:用于数据发送和接受<br>
-    struct:用于数据打包和拆包<br>
-    random:随机数生成<br>
-    threading:多线程应用<br>
-    http.client:http请求<br>
-    urllib.request:打开网页<br>
+        re:正则表达式用于匹配网页<br>
+        sys:emoji表情不能正常解析，需要sys支持<br>
+        time:添加时间<br>
+        lxml:Xpath匹配网页<br>
+        json:解析json数据<br>
+        socket:用于数据发送和接受<br>
+        struct:用于数据打包和拆包<br>
+        random:随机数生成<br>
+        threading:多线程应用<br>
+        http.client:http请求<br>
+        urllib.request:打开网页<br>
     
-    
 ### 2.2017年8月更新本项目，项目名为bilibili_zip.py<br>
 （1）基本框架没有更新，数据解析新增一个zlib库，由原来的"protover":0，变成"protover":2。为0的情况数据接受后是可以直接解析的，为2的情况下数据是乱码，即gzip格式的数据，需要将数据解压后才能解析<br>
 
