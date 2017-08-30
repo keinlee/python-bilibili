@@ -2,7 +2,7 @@
 
 ## 一、日志更新
 
-### 1.2017年2月上传本项目，项目名为bilibili.py<br>
+### 1.2017年2月上传本项目，文件名为bilibili.py<br>
 （1）基本实现能够获取指定直播间弹幕<br>
 
 （2）应用的库有：re、sys、time、json、socket、struct、random、threading、http.client、urllib.request、lxml<br>
@@ -18,7 +18,7 @@
 &emsp;&emsp;http.client:http请求<br>
 &emsp;&emsp;urllib.request:打开网页<br>
     
-### 2.2017年8月更新本项目，项目名为bilibili_zip.py<br>
+### 2.2017年8月更新本项目，文件名为bilibili_zip.py<br>
 （1）基本框架没有更新，数据解析新增一个zlib库，由原来的"protover":0，变成"protover":2。为0的情况数据接受后是可以直接解析的，为2的情况下数据是乱码，即gzip格式的数据，需要将数据解压后才能解析<br>
 
 （2）哔哩哔哩的服务器端口变化：由原来的788端口，变成2243端口。这个可以GET请求/api/player?id=cid: 后面加房间号可以看到现在的弹幕端口变成了2243端口。原来的788端口也是可以用的<br>
