@@ -19,9 +19,7 @@ class client():
           self.roomId = 0
           self.host = 'live.bilibili.com'
           self.port = 2243
-          self.protover = 0          
-          # 防止emoji表情编码出错
-          self.non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
+          self.protover = 0                   
           
      def getServer(self):
           while True:
@@ -189,6 +187,7 @@ class client():
                    #print(msgHead)
                    data = DemsgData[location+16:location+msgHead[0]]
                    #print(data)
+                   data= self.subEmoji(data)
                    try:
                         JsonMsgData=data.decode("utf-8")
                    except:
@@ -218,9 +217,9 @@ class client():
                isVIP = dic['info'][2][3]
                self.nowtime()
                if isadmin:                         
-                    print('【房管】【'+sendor+"】：" + content.translate(self.non_bmp_map))            
+                    print('【房管】【'+sendor+"】：" + content)            
                else:
-                    print('【'+sendor+"】：" + content.translate(self.non_bmp_map))
+                    print('【'+sendor+"】：" + content)
                    
 
           elif cmd == 'WELCOME':
@@ -285,6 +284,10 @@ class client():
           nowTime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
           print('[%s]'%nowTime,end='')
           
-
+     def subEmoji(self,data):
+          emoji = re.compile(r'[\U0001F000-\U0001FFFF]|\ud83c[\udf00-\udfff]|\ud83d[\udc00-\udeff]')
+          data = emoji.sub('\u274e',data.decode())
+          return data.encode()
+     
 danmu = client()
 danmu.getServer()

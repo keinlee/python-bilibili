@@ -1,4 +1,4 @@
-# Python-bilibili-danmu
+﻿# Python-bilibili-danmu
 
 ## 一、日志更新
 
@@ -25,6 +25,13 @@
 
 （3）重新编辑README.md，使用Markdown语法进行格式排版<br>
 
+### 3.2017年9月1日更新本项目，文件名为bilibili_zip.py<br>
+（1）添加过滤Emoji表情代码，Python3中的shell不支持4位字节显示会出错，直接替换为\u274e的"❎"Emoji表情<br>
+
+（2）删除Non-BMP字符集和替换相关代码<br>
+    self.non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
+    content.translate(self.non_bmp_map))
+
 
 ## 二、技术解析
 
@@ -38,4 +45,6 @@
 
 4.追踪roomid这个流时，我们可以看到前面还有两个关键词一个是uid，还有一个是protover。uid是随机生成的一串数字，protover推测是弹幕发送的格式。手机客户端追踪的时候，protover是为0的，电脑浏览器追踪protover是2。还有一个很明显的区别就是当protover为0，弹幕的格式能够清楚的看出来，当protover为2时，弹幕的格式就是乱码，这个问题困扰了我好久，后来才知道这个是传输中的gzip压缩包格式，需要解压后才能看到源数据<br>
 
-5.用Python编写程序，思路为向弹幕服务器（livecmt-2.bilibili.com）发送{"uid":xxxxx,"protover":0,"roomid":xxxxxxxxx}格式指令，再发送心跳包指令，每隔30秒发送一次心跳包，再json解析收到的数据，即可获得弹幕
+5.用Python编写程序，思路为向弹幕服务器（livecmt-2.bilibili.com）发送{"uid":xxxxx,"protover":0,"roomid":xxxxxxxxx}格式指令，再发送心跳包指令，每隔30秒发送一次心跳包，再json解析收到的数据，即可获得弹幕<br>
+
+6.对于Emoji表情的问题，Python3只支持2-3位字节的Emoji,所以需要将4字节的Emoji替换或者删除掉，减少出错率。
