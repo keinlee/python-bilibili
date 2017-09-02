@@ -6,6 +6,7 @@ import json
 import struct
 import socket
 import random
+import pymysql
 import threading
 import http.client
 import urllib.request
@@ -19,8 +20,8 @@ class client():
           self.roomId = 0
           self.host = 'live.bilibili.com'
           self.port = 2243
-          self.protover = 0                   
-          
+          self.protover = 0
+               
      def getServer(self):
           while True:
                #测试房间号
@@ -78,7 +79,7 @@ class client():
           else:
                print('直播状态未知')
                
-          
+          #self.createDb()
           self.sendData()
      
      def sendData(self):
@@ -149,7 +150,7 @@ class client():
                     msgData =struct.unpack('!i',msgData)
                     print("当前在线人数：%d"%msgData)
                     continue
-               
+               #循环网络堵塞，接受不完整的数据
                while True:
                     if msgLen - 16 > len(msgData):
                          print("数据不完整",end = "-->")
@@ -204,10 +205,12 @@ class client():
 
                
      def printMsg(self,msgData):
+          #print(msgData)
           try:
                dic = json.loads(msgData)
           except:
                return
+          #print(dic)
           cmd = dic['cmd']
                
           if cmd == 'DANMU_MSG':                         
@@ -215,12 +218,22 @@ class client():
                content = dic['info'][1]
                isadmin = dic['info'][2][2]
                isVIP = dic['info'][2][3]
+               sendid = dic['info'][2][0]
+               rank = dic['info'][4][0]
+               if dic['info'][3]:
+                    model = dic['info'][3][1]
+                    upid = dic['info'][3][4]
+                    upname = dic['info'][3][2]
+                    uproom = dic['info'][3][3]
+               else:
+                    model=upid=upname=uproom=''
+                    
                self.nowtime()
                if isadmin:                         
                     print('【房管】【'+sendor+"】：" + content)            
                else:
                     print('【'+sendor+"】：" + content)
-                   
+               self.insertDanmu(sendor,content,sendid,rank,upid,model,upname,uproom)
 
           elif cmd == 'WELCOME':
                isvip = dic['data']['uname']
@@ -248,9 +261,12 @@ class client():
                giftName = dic['data']['giftName']
                giftNum = dic['data']['num']
                sendor = dic['data']['uname']
+               uid = dic['data']['uid']
+               giftId = dic['data']['giftId']
+               action= dic['data']['action']
                self.nowtime()     
                print('【'+ sendor +'】' + "赠送" + str(giftNum) + '个' + giftName)
-               
+               self.insertGift(sendor,action,giftNum,giftName,uid,giftId)
                          
           elif cmd =='SYS_GIFT':                        
                msg = dic['msg']
@@ -271,6 +287,7 @@ class client():
           else:
                print("其他消息类型：",end="")
                print(dic)
+
      def thread(self,s):
           threads = []
           t1 = threading.Thread(target=self.heartBeat,args=(s,))
@@ -283,11 +300,71 @@ class client():
      def nowtime(self):
           nowTime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
           print('[%s]'%nowTime,end='')
-          
+
      def subEmoji(self,data):
           emoji = re.compile(r'[\U0001F000-\U0001FFFF]|\ud83c[\udf00-\udfff]|\ud83d[\udc00-\udeff]')
           data = emoji.sub('\u274e',data.decode())
           return data.encode()
-     
+          
+     def createDb(self):
+          #把*****替换为你的密码
+          db = pymysql.connect('localhost','root','*****','test',use_unicode=True, charset="utf8")
+          cursor = db.cursor()
+          cursor.execute('drop table if exists Bili_danmu')
+          sql='''create table Bili_danmu (id int(8) not null AUTO_INCREMENT,
+                 时间 datetime,
+                 发送者 char(30) not null,
+                 内容 char(30),
+                 sendid int(9) not null,
+                 等级 int(2) not null,
+                 upid char(9),
+                 勋章 char(4),
+                 主播 char(30),
+                 房间号 char(8),
+                 primary key (id))ENGINE=InnoDB DEFAULT CHARSET=utf8;'''
+          cursor.execute(sql)
+          cursor.execute('drop table if exists Bili_gift')
+          sql='''create table Bili_gift (id int(8) not null AUTO_INCREMENT,
+                 时间 datetime,
+                 赠送者 char(30) not null,
+                 动作 char(2),
+                 数量 int(5) not null,
+                 礼物名字 char(5) not null,
+                 sendid int(9) not null,
+                 giftid int(2) not null,
+                  primary key (id))ENGINE=InnoDB DEFAULT CHARSET=utf8;'''
+          cursor.execute(sql)
+          db.close()
+                          
+     def insertDanmu(self,sendor,content,sendid,rank,upid,model,upname,uproom):
+         db = pymysql.connect('localhost','root','*****','test',use_unicode=True, charset="utf8")
+         cursor = db.cursor()
+         #print(sendor,content,sendid,rank,upid,model,upname,uproom)
+         sql="insert into Bili_danmu (时间,发送者,内容,sendid,等级,upid,勋章,主播,房间号)\
+         values(now(),'%s','%s','%d','%d','%s','%s','%s','%s')"%\
+         (sendor,content,int(sendid),int(rank),str(upid),model,upname,uproom)
+         try:
+              cursor.execute(sql)
+              db.commit()
+         except:
+              print('插入失败')
+              db.rollback()
+         db.close()
+     def insertGift(self,sendor,action,giftNum,giftName,uid,giftId):
+         db = pymysql.connect('localhost','root','*****','test',use_unicode=True, charset="utf8")
+         cursor = db.cursor()
+         #print(sendor,action,giftNum,giftName,uid,giftId)
+         sql="insert into Bili_gift (时间,赠送者,动作,数量,礼物名字,sendid,giftid)\
+         values(now(),'%s','%s','%d','%s','%d','%d')"%\
+         (sendor,action,int(giftNum),giftName,int(uid),int(giftId))
+         
+         try:
+              cursor.execute(sql)
+              db.commit()
+         except:
+              print('插入失败')
+              db.rollback()
+         db.close()
+          
 danmu = client()
 danmu.getServer()

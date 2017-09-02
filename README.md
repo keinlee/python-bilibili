@@ -29,8 +29,27 @@
 （1）添加过滤Emoji表情代码，Python3中的shell不支持4位字节显示会出错，直接替换为\u274e的"❎"Emoji表情<br>
 
 （2）删除Non-BMP字符集和替换相关代码<br>
-    self.non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
-    content.translate(self.non_bmp_map))
+    self.non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)<br>
+    content.translate(self.non_bmp_map))<br>
+
+### 4.2017年9月2日更新本项目，文件名为bilibili_zip.py<br>
+（1）添加pymysql第三方库<br>
+
+（2）使用并连接MySQL数据库，添加数据表创建和弹幕、礼物数据存入数据库操作<br>
+
+（3）在MySQL中使用以下命令，创建默认编码字符为UTF8数据库<br>
+    CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;<br>
+
+（4）在MySQL中使用以下命令（test数据库名），查询数据库的字符集<br>
+    SHOW CREATE DATABASE test;<br>
+    SHOW VARIABLES LIKE '%char%';<br>
+
+（5）在选择数据库后，使用以下命令（test是数据库名，bili_danmu是数据表名），查询数据表字符集<br>
+    SHOW CREATE TABLE bili_danmu;<br>
+    SHOW TABLE STATUS FROM test LIKE 'bili_danmu';<br>
+
+（6）在MySQL中使用以下命令（test是数据库名，bili_danmu是数据表名），查询数据表中列信息<br>
+    SHOW FULL COLUMNS FROM bili_danmu FROM test;<br>
 
 
 ## 二、技术解析
@@ -47,4 +66,6 @@
 
 5.用Python编写程序，思路为向弹幕服务器（livecmt-2.bilibili.com）发送{"uid":xxxxx,"protover":0,"roomid":xxxxxxxxx}格式指令，再发送心跳包指令，每隔30秒发送一次心跳包，再json解析收到的数据，即可获得弹幕<br>
 
-6.对于Emoji表情的问题，Python3只支持2-3位字节的Emoji,所以需要将4字节的Emoji替换或者删除掉，减少出错率。
+6.对于Emoji表情的问题，Python3只支持2-3位字节的Emoji,所以需要将4字节的Emoji替换或者删除掉，减少出错率<br>
+
+7.Python3不支持mysqldb第三方库，故采用pymyql第三方库，创建数据库、数据表以及存入数据的时候记得都要设置编码为utf8(默认的字符编码是latin1，不支持中文)，不然存储中文会出现错误<br>
