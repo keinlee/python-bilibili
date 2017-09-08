@@ -307,8 +307,8 @@ class client():
           return data.encode()
           
      def createDb(self):
-          #把*****替换为你的密码
-          db = pymysql.connect('localhost','root','*****','test',use_unicode=True, charset="utf8")
+          #root为数据库用户，00000为数据库密码，test为数据库名
+          db = pymysql.connect('localhost','root','00000','test',use_unicode=True, charset="utf8")
           cursor = db.cursor()
           cursor.execute('drop table if exists Bili_danmu')
           sql='''create table Bili_danmu (id int(8) not null AUTO_INCREMENT,
@@ -337,7 +337,7 @@ class client():
           db.close()
                           
      def insertDanmu(self,sendor,content,sendid,rank,upid,model,upname,uproom):
-         db = pymysql.connect('localhost','root','*****','test',use_unicode=True, charset="utf8")
+         db = pymysql.connect('localhost','root','00000','test',use_unicode=True, charset="utf8")
          cursor = db.cursor()
          #print(sendor,content,sendid,rank,upid,model,upname,uproom)
          sql="insert into Bili_danmu (时间,发送者,内容,sendid,等级,upid,勋章,主播,房间号)\
@@ -351,7 +351,7 @@ class client():
               db.rollback()
          db.close()
      def insertGift(self,sendor,action,giftNum,giftName,uid,giftId):
-         db = pymysql.connect('localhost','root','*****','test',use_unicode=True, charset="utf8")
+         db = pymysql.connect('localhost','root','00000','test',use_unicode=True, charset="utf8")
          cursor = db.cursor()
          #print(sendor,action,giftNum,giftName,uid,giftId)
          sql="insert into Bili_gift (时间,赠送者,动作,数量,礼物名字,sendid,giftid)\
